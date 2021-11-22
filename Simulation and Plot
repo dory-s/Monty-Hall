@@ -1,0 +1,33 @@
+#iterations chooses how many doors to include in the model. It always starts with 3.
+iterations <- 1000
+stays_props <- rep(NA, iterations)
+goes_props <- rep(NA, iterations)
+
+#sims chooses how many times to run the simulation for each number of doors.
+for(j in 3:iterations){
+  sims <- 1000
+  doors <- j
+  choice <- sample(1:doors, sims, replace = T)
+  correct <- sample(1:doors, sims, replace = T)
+  ones <- rep(1, sims)
+  dataset <- as.data.frame(ones)
+  for(i in 2:doors){
+    varx <- rep(i, sims)
+    dataset <- cbind(dataset, varx)
+  }
+  colnames(dataset) <- 1:doors
+  dataset <- cbind(dataset, correct)
+  stays <- ifelse(correct == choice, 1, 0)
+  stays_prop <- sum(stays)/sims
+  goes <- ifelse(correct == choice, 0, 1/(doors-2))
+  goes_prop <- sum(goes)/sims
+  stays_props[j] <- stays_prop
+  goes_props[j] <- goes_prop
+}
+
+#Plot the relationship
+
+proportions <- as.data.frame(stays_props)
+proportions <- cbind(proportions, goes_props)
+plot(proportions, type = "n", main = "Relative Ratio of Winning if you Keep vs. Change Doors in Monty Hall", xlab = "Probability of Winning if you Keep", ylab = "Probability of Winning if you Change")
+text(proportions$stays_prop, proportions$goes_prop, row.names(proportions), cex = 0.8)
